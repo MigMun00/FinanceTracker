@@ -7,5 +7,8 @@ class CategoryRead(BaseModel):
     id: int
     name: str
 
+class CategoryUpdate(BaseModel):
+    name: str
+
     class Config:
         from_attributes = True
