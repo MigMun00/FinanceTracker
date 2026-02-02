@@ -1,14 +1,16 @@
 from pydantic import BaseModel
 
-class CategoryCreate(BaseModel):
+class CategoryBase(BaseModel):
     name: str
 
-class CategoryRead(BaseModel):
+class CategoryCreate(CategoryBase):
+    pass
+
+class CategoryRead(CategoryBase):
     id: int
-    name: str
-
-class CategoryUpdate(BaseModel):
-    name: str
 
     class Config:
         from_attributes = True
+
+class CategoryUpdate(CategoryBase):
+    pass

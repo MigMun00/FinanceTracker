@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from sqlalchemy import select
-from datetime import date as DateType
+from datetime import date as date_
 from typing import Optional
 from sqlalchemy import select, and_
 
@@ -45,8 +44,8 @@ def create_transaction(
 def get_transactions_list(
         db: Session = Depends(get_db),
         current_user: User = Depends(get_current_user),
-        date_from: Optional[DateType] = None,
-        date_to: Optional[DateType] = None,
+        date_from: Optional[date_] = None,
+        date_to: Optional[date_] = None,
         category_id: Optional[int] = None,
         tx_type: Optional[str] = None,
         limit: int = 50,

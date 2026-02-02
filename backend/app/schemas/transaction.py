@@ -1,13 +1,12 @@
 from pydantic import BaseModel
-# noinspection PyPep8Naming
-from datetime import date as DateType
+from datetime import date as date_
 from decimal import Decimal
 from typing import Optional
 
 class TransactionBase(BaseModel):
     amount: Decimal
     type: str  # income | expense
-    date: DateType
+    date: date_
     category_id: int
     description: Optional[str] = None
 
@@ -17,12 +16,12 @@ class TransactionCreate(TransactionBase):
 class TransactionRead(TransactionBase):
     id: int
 
+    class Config:
+        from_attributes = True
+
 class TransactionUpdate(BaseModel):
     amount: Optional[Decimal] = None
     type: Optional[str] = None
-    date: Optional[DateType] = None
+    date: Optional[date_] = None
     category_id: Optional[int] = None
     description: Optional[str] = None
-
-    class Config:
-        from_attributes = True
