@@ -1,6 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import select
+from datetime import date as DateType
+from typing import Optional
+from sqlalchemy import select, and_
 
 from app.core.deps import get_db
 from app.core.auth import get_current_user
@@ -41,9 +44,28 @@ def create_transaction(
 @router.get("", response_model=list[TransactionRead])
 def get_transactions_list(
         db: Session = Depends(get_db),
-        current_user: User = Depends(get_current_user)
+        current_user: User = Depends(get_current_user),
+        date_from: Optional[DateType] = None,
+        date_to: Optional[DateType] = None,
+        category_id: Optional[int] = None,
+        tx_type: Optional[str] = None,
+        limit: int = 50,
+        offset: int = 0
 ):
-    stmt = select(Transaction).where(Transaction.user_id == current_user.id)
+    conditions = [Transaction.user_id == current_user.id]
+
+    if date_from: conditions.append(Transaction.date >= date_from)
+    if date_to: conditions.append(Transaction.date <= date_to)
+    if category_id: conditions.append(Transaction.category_id == category_id)
+    if tx_type: conditions.append(Transaction.type == tx_type)
+
+    stmt = (
+        select(Transaction)
+        .where(and_(*conditions))
+        .order_by(Transaction.date.desc())
+        .limit(limit)
+        .offset(offset)
+    )
     return db.scalars(stmt).all()
 
 @router.get("/{transaction_id}", response_model=TransactionRead)

@@ -1,1 +1,1 @@
-from app.routers import auth, users, categories
+from app.routers import auth, users, categories, reports
