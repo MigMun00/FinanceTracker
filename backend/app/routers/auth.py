@@ -10,7 +10,7 @@ from app.schemas import UserCreate, UserLogin, Token
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-@router.post("/register", status_code=201)
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 def register(data: UserCreate, db: Session = Depends(get_db)):
     existing = db.scalar(select(User).where(User.email == str(data.email)))
     if existing:
