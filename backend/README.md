@@ -36,28 +36,6 @@ This backend supports:
 - JWT authentication
 
 
-## Project Structure
-
-backend/  
-├── app/  
-│   ├── main.py  
-│   ├── core/  
-│   │   ├── config.py  
-│   │   ├── database.py  
-│   │   ├── security.py  
-│   │   ├── deps.py  
-│   │   └── auth.py  
-│   ├── models/  
-│   ├── schemas/  
-│   ├── routers/  
-│   └── services/  
-├── alembic/  
-├── alembic.ini  
-├── .env  
-├── requirements.txt  
-└── README.md
-
-
 ## Setup Instructions
 
 ### 1. Clone the repository
@@ -65,13 +43,11 @@ git clone <repo-url>
 cd FinanceTracker/backend
 
 
-### 2. Create and activate virtual environment
-python -m venv venv  
-*Windows*: venv\Scripts\activate
-
+### 2. Create virtual environment
+uv venv
 
 ### 3. Install dependencies
-pip install -r requirements.txt
+uv sync
 
 
 ### 4. Environment variables
@@ -88,7 +64,7 @@ alembic upgrade head
 
 
 ### 6. Run the application
-uvicorn app.main:app --reload
+uv run uvicorn app.main:app --reload
 
 API:
 - http://127.0.0.1:8000
