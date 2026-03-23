@@ -19,6 +19,10 @@ def get_current_user(
             settings.secret_key,
             algorithms=[settings.algorithm]
         )
+
+        if payload.get("type") != "access":
+            raise JWTError
+
         user_id: str | None = payload.get("sub")
         if user_id is None:
             raise JWTError

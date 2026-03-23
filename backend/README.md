@@ -3,25 +3,35 @@
 Backend API for a personal finance tracking application.  
 Built with **FastAPI**, **SQLAlchemy 2.0**, and **Alembic**.
 
-This backend supports:
-- Multiple users
-- Secure authentication (JWT)
-- Categories and transactions
-- Monthly financial summaries
-- Ready for web and mobile frontends
-
-
 ## Features
 
-- User registration and login
-- JWT-based authentication
-- User data isolation
+- User registration and authentication
+- JWT access + refresh token system
+- Refresh token rotation and revocation
+- Secure password hashing (bcrypt)
+- User data isolation (multi-user support)
 - Categories CRUD
 - Transactions CRUD
 - Filters and pagination
 - Monthly income / expense reports
 - Database migrations with Alembic
 - Environment-based configuration
+
+
+## Authentication Design
+
+### Flow
+- User logs in → receives access + refresh tokens
+- Access token is used for API requests
+- When expired → client calls /auth/refresh
+- New tokens are issued and old refresh token is revoked
+- User session continues without re-login
+
+### Security Features
+- Refresh token rotation (one-time use)
+- Token revocation (logout support)
+- Hashed storage of refresh tokens
+- Expiration control for all tokens
 
 
 ## Tech Stack
@@ -57,7 +67,8 @@ APP_NAME=FinanceTracker
 DATABASE_URL=sqlite:///./finance.db  
 SECRET_KEY=change-this-secret  
 ALGORITHM=HS256  
-ACCESS_TOKEN_EXPIRE_MINUTES=30
+ACCESS_TOKEN_EXPIRE_MINUTES=15  
+REFRESH_TOKEN_EXPIRE_MINUTES=10080
 
 ### 5. Run database migrations
 alembic upgrade head
@@ -71,20 +82,13 @@ API:
 - Docs: http://127.0.0.1:8000/docs
 
 
-## Authentication Flow
-
-1. Register user: POST /auth/register
-2. Login: POST /auth/login
-3. Receive JWT access token
-4. Use token in Authorization header
-5. Access protected endpoints
-
-
-## Main API Endpoints
+## API Endpoints
 
 Auth:
 - POST /auth/register
 - POST /auth/login
+- POST /auth/refresh
+- POST /auth/logout
 
 Users:
 - GET /users/me
@@ -137,8 +141,3 @@ alembic upgrade head
 - Charts and analytics
 - React web frontend
 - React Native mobile app
-
-
-## License
-
-Personal and educational use.
