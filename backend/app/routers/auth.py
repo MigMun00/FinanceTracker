@@ -8,7 +8,7 @@ from sqlalchemy import select
 from app.core.config import settings
 from app.core.deps import get_db
 from app.core.security import hash_password, verify_password, create_access_token, create_refresh_token, hash_token, \
-    verify_refresh_token
+    verify_refresh_token, decode_refresh_token
 from app.models.user import User
 from app.models.refresh_token import RefreshToken
 from app.schemas import UserCreate, TokenResponse, RefreshRequest
@@ -50,11 +50,12 @@ def login(
 
     # Create tokens
     access_token = create_access_token(subject=str(user.id))
-    refresh_token = create_refresh_token()
+    refresh_token, jti = create_refresh_token(subject=str(user.id))
 
     # Store hashed refresh token
     db_token = RefreshToken(
         user_id=user.id,
+        jti=jti,
         token_hash=hash_token(refresh_token),
         expires_at=datetime.now(timezone.utc) + timedelta(minutes=settings.refresh_token_expire_minutes)
     )
@@ -70,27 +71,33 @@ def login(
 
 @router.post("/refresh", response_model=TokenResponse)
 def refresh(request: RefreshRequest, db: Session = Depends(get_db)):
-    tokens = db.query(RefreshToken).filter(RefreshToken.revoked == False).all()
+    payload = decode_refresh_token(request.refresh_token)
 
-    db_token = None
-    for t in tokens:
-        if verify_refresh_token(request.refresh_token, t.token_hash):
-            db_token = t
-            break
+    if not payload:
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
 
-    if not db_token:
+    jti = payload.get("jti")
+
+    db_token = db.query(RefreshToken).filter(RefreshToken.jti == jti).first()
+
+    if not db_token or db_token.revoked:
         raise HTTPException(status_code=401, detail="Invalid refresh token")
 
     if db_token.expires_at < datetime.utcnow():
         raise HTTPException(status_code=401, detail="Token expired")
 
+    if not verify_refresh_token(request.refresh_token, db_token.token_hash):
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
+
     # Rotate token
     db_token.revoked = True
     db.commit()
-    new_refresh = create_refresh_token()
+
+    new_refresh, new_jti = create_refresh_token(str(db_token.user_id))
 
     new_db_token = RefreshToken(
         user_id=db_token.user_id,
+        jti=new_jti,
         token_hash=hash_token(new_refresh),
         expires_at=datetime.now(timezone.utc) + timedelta(minutes=settings.refresh_token_expire_minutes)
     )
@@ -98,7 +105,7 @@ def refresh(request: RefreshRequest, db: Session = Depends(get_db)):
     db.add(new_db_token)
     db.commit()
 
-    new_access = create_access_token(subject=str(new_db_token.user_id))
+    new_access = create_access_token(subject=str(db_token.user_id))
 
     return {
         "access_token": new_access,
@@ -108,12 +115,21 @@ def refresh(request: RefreshRequest, db: Session = Depends(get_db)):
 
 @router.post("/logout")
 def logout(request: RefreshRequest, db: Session = Depends(get_db)):
-    tokens = db.query(RefreshToken).filter(RefreshToken.revoked == False).all()
+    payload = decode_refresh_token(request.refresh_token)
+    if not payload or payload.get("type") != "refresh":
+        raise HTTPException(status_code=401, detail="Invalid refresh token")
 
-    for t in tokens:
-        if verify_refresh_token(request.refresh_token, t.token_hash):
-            t.revoked = True
-            db.commit()
-            return {"message": "Logged out"}
+    jti = payload.get("jti")
 
-    raise HTTPException(status_code=401, detail="Invalid token")
+    token = db.query(RefreshToken).filter(RefreshToken.jti == jti).first()
+
+    if not token or token.revoked:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    if not verify_refresh_token(request.refresh_token, token.token_hash):
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    token.revoked = True
+    db.commit()
+
+    return {"message": "Logged out"}
