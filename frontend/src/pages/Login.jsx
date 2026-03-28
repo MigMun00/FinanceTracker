@@ -5,9 +5,11 @@ import { useNavigate } from "react-router-dom";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import { login } from "../services/auth";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { loginUser } = useAuth();
 
   const [form, setForm] = useState({
     email: "",
@@ -27,13 +29,9 @@ export default function Login() {
     try {
       setLoading(true);
 
-      const data = await login(form);
+      await loginUser(form);
 
-      // Save token to localStorage
-      localStorage.setItem("access_token", data.access_token);
-      localStorage.setItem("refresh_token", data.refresh_token);
-
-      window.location.href = "/dashboard";
+      navigate("/dashboard");
     } catch (err) {
       console.error(err);
       alert("Invalid credentials");

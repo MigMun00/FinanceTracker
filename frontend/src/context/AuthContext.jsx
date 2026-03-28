@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../services/api";
+import { login, register, logout } from "../services/auth";
 
 const AuthContext = createContext();
 
@@ -19,12 +20,32 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const loginUser = async (form) => {
+    const data = await login(form);
+
+    localStorage.setItem("access_token", data.access_token);
+    localStorage.setItem("refresh_token", data.refresh_token);
+
+    const res = await api.get("/users/me");
+    setUser(res.data);
+  };
+
+  const logoutUser = async () => {
+    try {
+      await logout();
+    } catch {}
+
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
+    setUser(null);
+  };
+
   useEffect(() => {
     getUser();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, loading, loginUser, logoutUser }}>
       {children}
     </AuthContext.Provider>
   );
