@@ -1,4 +1,9 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
 import Dashboard from "./pages/Dashboard";
 import Login from "./pages/Login";
@@ -6,14 +11,31 @@ import Register from "./pages/Register";
 import Transactions from "./pages/Transactions";
 import Categories from "./pages/Categories";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import PublicRoute from "./routes/PublicRoute";
 
 function App() {
   return (
     <Router>
       <div>
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <Login />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <PublicRoute>
+                <Register />
+              </PublicRoute>
+            }
+          />
           <Route
             path="/dashboard"
             element={
@@ -38,7 +60,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="*" element={<Login />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </Router>

@@ -33,7 +33,7 @@ export default function Login() {
       localStorage.setItem("access_token", data.access_token);
       localStorage.setItem("refresh_token", data.refresh_token);
 
-      navigate("/dashboard");
+      window.location.href = "/dashboard";
     } catch (err) {
       console.error(err);
       alert("Invalid credentials");
