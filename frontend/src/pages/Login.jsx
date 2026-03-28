@@ -1,29 +1,85 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import Button from "../components/Button";
 import Input from "../components/Input";
+import { login } from "../services/auth";
 
 export default function Login() {
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+
+      const data = await login(form);
+
+      // Save token to localStorage
+      localStorage.setItem("access_token", data.access_token);
+      localStorage.setItem("refresh_token", data.refresh_token);
+
+      navigate("/dashboard");
+    } catch (err) {
+      console.error(err);
+      alert("Invalid credentials");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="h-screen flex items-center justify-center bg-(--bg) text-(--text)">
-      <div className="w-1/2 h-[50vh] bg-(--surface) border border-(--border) rounded-2xl overflow-hidden flex">
+      <div className="w-1/2 h-1/2 bg-(--surface) border border-(--border) rounded-2xl overflow-hidden flex">
         {/* Left */}
         <div className="w-1/2 flex flex-col items-center justify-center px-12">
           <h1 className="text-3xl font-semibold mb-6">Log In</h1>
 
           <div className="flex flex-col gap-4 w-3/4">
-            <Input type="email" placeholder="Email" />
-            <Input type="password" placeholder="Password" />
+            <Input
+              name="email"
+              type="email"
+              placeholder="Email"
+              value={form.email}
+              onChange={handleChange}
+            />
+            <Input
+              name="password"
+              type="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={handleChange}
+            />
 
             <Button
-              disabled="true"
+              disabled={true}
               variant="ghost"
               className=" w-auto self-center text-sm"
             >
               Forgot password?
             </Button>
 
-            <Button className="w-1/2 self-center">Log In</Button>
+            <Button
+              className="w-1/2 self-center"
+              onClick={handleSubmit}
+              loading={loading}
+            >
+              Log In
+            </Button>
           </div>
         </div>
 

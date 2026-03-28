@@ -6,7 +6,7 @@ import Input from "../components/Input";
 export default function Register() {
   return (
     <div className="h-screen flex items-center justify-center bg-(--bg) text-(--text)">
-      <div className="w-1/2 h-[50vh] bg-(--surface) border border-(--border) rounded-2xl overflow-hidden flex">
+      <div className="w-1/2 h-1/2 bg-(--surface) border border-(--border) rounded-2xl overflow-hidden flex">
         {/* Left */}
         <div className="w-1/2 flex flex-col items-center justify-center px-12">
           <h1 className="text-3xl font-semibold mb-6">Sign Up</h1>
