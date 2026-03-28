@@ -33,7 +33,9 @@ export function AuthProvider({ children }) {
   const logoutUser = async () => {
     try {
       await logout();
-    } catch {}
+    } catch (err) {
+      console.error("Logout failed:", err);
+    }
 
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");

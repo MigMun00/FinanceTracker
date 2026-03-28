@@ -20,6 +20,12 @@ export async function register(data) {
 }
 
 export async function logout() {
-  const res = await api.post("/auth/logout");
+  const refreshToken = localStorage.getItem("refresh_token");
+
+  if (!refreshToken) {
+    throw new Error("No refresh token found");
+  }
+
+  const res = await api.post("/auth/logout", { refresh_token: refreshToken });
   return res.data;
 }
