@@ -1,9 +1,43 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 import Button from "../components/Button";
 import Input from "../components/Input";
+import { register } from "../services/auth";
 
 export default function Register() {
+  const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    first_name: "",
+    last_name: "",
+    email: "",
+    password: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setForm({
+      ...form,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = async () => {
+    try {
+      setLoading(true);
+
+      await register(form);
+
+      navigate("/login");
+    } catch (err) {
+      console.error(err);
+      alert("Error creating account. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="h-screen flex items-center justify-center bg-(--bg) text-(--text)">
       <div className="w-1/2 h-1/2 bg-(--surface) border border-(--border) rounded-2xl overflow-hidden flex">
@@ -12,11 +46,41 @@ export default function Register() {
           <h1 className="text-3xl font-semibold mb-6">Sign Up</h1>
 
           <div className="flex flex-col gap-4 w-3/4">
-            <Input type="text" placeholder="First Name" />
-            <Input type="text" placeholder="Last Name" />
-            <Input type="email" placeholder="Email" />
-            <Input type="password" placeholder="Password" />
-            <Button className="w-1/2 self-center">Sign Up</Button>
+            <Input
+              name="first_name"
+              type="text"
+              placeholder="First Name"
+              value={form.first_name}
+              onChange={handleChange}
+            />
+            <Input
+              name="last_name"
+              type="text"
+              placeholder="Last Name"
+              value={form.last_name}
+              onChange={handleChange}
+            />
+            <Input
+              name="email"
+              type="email"
+              placeholder="Email"
+              value={form.email}
+              onChange={handleChange}
+            />
+            <Input
+              name="password"
+              type="password"
+              placeholder="Password"
+              value={form.password}
+              onChange={handleChange}
+            />
+            <Button
+              className="w-1/2 self-center"
+              onClick={handleSubmit}
+              loading={loading}
+            >
+              Sign Up
+            </Button>
           </div>
         </div>
 
