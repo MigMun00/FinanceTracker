@@ -25,7 +25,7 @@ def create_access_token(subject: str) -> str:
 
 def create_refresh_token(subject: str) -> str:
     now = datetime.now(timezone.utc)
-    expire = now + timedelta(minutes=settings.access_token_expire_minutes)
+    expire = now + timedelta(minutes=settings.refresh_token_expire_minutes)
 
     jti = str(uuid.uuid4())
 
