@@ -25,6 +25,8 @@ def register(data: UserCreate, db: Session = Depends(get_db)):
         )
 
     user = User(
+        first_name=data.first_name,
+        last_name=data.last_name,
         email=str(data.email),
         password_hash=hash_password(data.password)
     )
@@ -32,7 +34,12 @@ def register(data: UserCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
 
-    return {"id": user.id, "email": user.email}
+    return {
+        "id": user.id,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "email": user.email,    
+    }
 
 
 @router.post("/login", response_model=TokenResponse)
