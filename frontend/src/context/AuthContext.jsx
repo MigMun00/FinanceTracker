@@ -1,58 +1,69 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import api from "../services/api";
-import { login, register, logout } from "../services/auth";
+import * as authService from "../services/auth";
+import { setupInterceptors } from "../services/interceptor";
 
 const AuthContext = createContext();
 
-export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+export const AuthProvider = ({ children }) => {
+  const [accessToken, setAccessToken] = useState(null);
+  const [initialized, setInitialized] = useState(false);
 
-  const getUser = async () => {
-    try {
-      const res = await api.get("/users/me");
-      setUser(res.data);
-    } catch (err) {
-      setUser(null);
-      localStorage.removeItem("access_token");
-    } finally {
-      setLoading(false);
-    }
+  const isAuthenticated = !!accessToken;
+
+  const login = async (data) => {
+    const res = await authService.login(data);
+    setAccessToken(res.access_token);
   };
 
-  const loginUser = async (form) => {
-    const data = await login(form);
-
-    localStorage.setItem("access_token", data.access_token);
-    localStorage.setItem("refresh_token", data.refresh_token);
-
-    const res = await api.get("/users/me");
-    setUser(res.data);
+  const logout = async () => {
+    try {
+      await authService.logout();
+    } catch (e) {}
+    setAccessToken(null);
   };
 
-  const logoutUser = async () => {
-    try {
-      await logout();
-    } catch (err) {
-      console.error("Logout failed:", err);
-    }
-
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
-    setUser(null);
+  const refresh = async () => {
+    const res = await authService.refresh();
+    setAccessToken(res.access_token);
+    return res.access_token;
   };
 
   useEffect(() => {
-    getUser();
+    setupInterceptors({
+      get accessToken() {
+        return accessToken;
+      },
+      refresh,
+      logout,
+    });
+
+    const initAuth = async () => {
+      try {
+        await refresh();
+      } catch (e) {
+        setAccessToken(null);
+      } finally {
+        setInitialized(true);
+      }
+    };
+
+    initAuth();
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, loginUser, logoutUser }}>
+    <AuthContext.Provider
+      value={{
+        accessToken,
+        isAuthenticated,
+        initialized,
+        login,
+        logout,
+        refresh,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
-  return useContext(AuthContext);
-}
+export const useAuth = () => useContext(AuthContext);

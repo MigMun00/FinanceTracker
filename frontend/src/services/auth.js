@@ -19,13 +19,12 @@ export async function register(data) {
   return res.data;
 }
 
+export async function refresh() {
+  const res = await api.post("/auth/refresh");
+  return res.data;
+}
+
 export async function logout() {
-  const refreshToken = localStorage.getItem("refresh_token");
-
-  if (!refreshToken) {
-    throw new Error("No refresh token found");
-  }
-
-  const res = await api.post("/auth/logout", { refresh_token: refreshToken });
+  const res = await api.post("/auth/logout");
   return res.data;
 }

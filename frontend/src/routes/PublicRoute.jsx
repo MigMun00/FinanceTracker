@@ -1,14 +1,12 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-export default function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth();
+export default function PublicRoute({ children }) {
+  const { isAuthenticated, initialized } = useAuth();
 
-  if (loading) {
-    return <div className="text-center mt-10">Loading...</div>;
-  }
+  if (!initialized) return null;
 
-  if (user) {
+  if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
 

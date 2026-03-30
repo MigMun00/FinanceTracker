@@ -1,21 +1,21 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 import Button from "../components/Button";
 import Input from "../components/Input";
-import { login } from "../services/auth";
-import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
+  const { login } = useAuth();
   const navigate = useNavigate();
-  const { loginUser } = useAuth();
 
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
 
+  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
@@ -25,16 +25,16 @@ export default function Login() {
     });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
     try {
-      setLoading(true);
-
-      await loginUser(form);
-
+      await login(form);
       navigate("/dashboard");
     } catch (err) {
-      console.error(err);
-      alert("Invalid credentials");
+      setError("Invalid email or password");
     } finally {
       setLoading(false);
     }
