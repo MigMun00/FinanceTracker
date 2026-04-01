@@ -12,10 +12,12 @@ import Transactions from "./pages/Transactions";
 import Categories from "./pages/Categories";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
+import Navbar from "./components/Navbar";
 
 function App() {
   return (
     <Router>
+      <Navbar />
       <div>
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />

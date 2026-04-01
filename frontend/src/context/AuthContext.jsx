@@ -1,30 +1,44 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import * as authService from "../services/auth";
+import * as userService from "../services/user";
 import { setupInterceptors } from "../services/interceptor";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(null);
+  const [user, setUser] = useState(null);
   const [initialized, setInitialized] = useState(false);
 
   const isAuthenticated = !!accessToken;
 
+  const fetchUser = async (token) => {
+    const res = await userService.getUser(token);
+    setUser(res);
+  };
+
+  const setSession = async (token) => {
+    setAccessToken(token);
+    await fetchUser(token);
+  };
+
   const login = async (data) => {
     const res = await authService.login(data);
-    setAccessToken(res.access_token);
+    await setSession(res.access_token);
   };
 
   const logout = async () => {
     try {
       await authService.logout();
     } catch (e) {}
+
     setAccessToken(null);
+    setUser(null);
   };
 
   const refresh = async () => {
     const res = await authService.refresh();
-    setAccessToken(res.access_token);
+    await setSession(res.access_token);
     return res.access_token;
   };
 
@@ -42,6 +56,7 @@ export const AuthProvider = ({ children }) => {
         await refresh();
       } catch (e) {
         setAccessToken(null);
+        setUser(null);
       } finally {
         setInitialized(true);
       }
@@ -54,6 +69,7 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider
       value={{
         accessToken,
+        user,
         isAuthenticated,
         initialized,
         login,

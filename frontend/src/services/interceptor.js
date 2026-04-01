@@ -32,43 +32,59 @@ export const setupInterceptors = (auth) => {
     async (error) => {
       const originalRequest = error.config;
 
-      // prevent infinite loop
-      if (error.response?.status === 401 && !originalRequest._retry) {
-        if (originalRequest.url.includes("/auth/refresh")) {
-          return Promise.reject(error);
-        }
-        if (isRefreshing) {
-          // queue requests while refreshing
-          return new Promise((resolve, reject) => {
-            failedQueue.push({
-              resolve: (token) => {
-                originalRequest.headers.Authorization = `Bearer ${token}`;
-                resolve(api(originalRequest));
-              },
-              reject,
-            });
-          });
-        }
-
-        originalRequest._retry = true;
-        isRefreshing = true;
-
-        try {
-          const newToken = await auth.refresh();
-
-          processQueue(null, newToken);
-
-          originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          return api(originalRequest);
-        } catch (err) {
-          processQueue(err, null);
-          await auth.logout();
-          return Promise.reject(err);
-        } finally {
-          isRefreshing = false;
-        }
+      // 1. Only handle 401
+      if (error.response?.status !== 401) {
+        return Promise.reject(error);
       }
-      return Promise.reject(error);
+
+      // 2. Skip special endpoints
+      if (
+        originalRequest.url.includes("/auth/refresh") ||
+        originalRequest.url.includes("/users/me")
+      ) {
+        return Promise.reject(error);
+      }
+
+      // 3. Don't attempt refresh if not ready
+      if (!auth.accessToken || !auth.initialized) {
+        return Promise.reject(error);
+      }
+
+      // 4. Prevent infinite retry
+      if (originalRequest._retry) {
+        return Promise.reject(error);
+      }
+
+      // 5. Handle concurrent requests
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({
+            resolve: (token) => {
+              originalRequest.headers.Authorization = `Bearer ${token}`;
+              resolve(api(originalRequest));
+            },
+            reject,
+          });
+        });
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const newToken = await auth.refresh();
+
+        processQueue(null, newToken);
+
+        originalRequest.headers.Authorization = `Bearer ${newToken}`;
+        return api(originalRequest);
+      } catch (err) {
+        processQueue(err, null);
+        await auth.logout();
+        return Promise.reject(err);
+      } finally {
+        isRefreshing = false;
+      }
     },
   );
 };

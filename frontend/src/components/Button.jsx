@@ -5,6 +5,7 @@ export default function Button({
   className = "",
   disabled = false,
   loading = false,
+  type = "button",
   ...props
 }) {
   const base =
