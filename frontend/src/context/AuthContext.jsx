@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import * as authService from "../services/auth";
 import * as userService from "../services/user";
 import { setupInterceptors } from "../services/interceptor";
+import api from "../services/api";
 
 const AuthContext = createContext();
 
@@ -43,7 +44,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    setupInterceptors({
+    const { requestInterceptor, responseInterceptor } = setupInterceptors({
       get accessToken() {
         return accessToken;
       },
@@ -63,7 +64,12 @@ export const AuthProvider = ({ children }) => {
     };
 
     initAuth();
-  }, []);
+
+    return () => {
+      api.interceptors.request.eject(requestInterceptor);
+      api.interceptors.response.eject(responseInterceptor);
+    };
+  }, [accessToken]);
 
   return (
     <AuthContext.Provider

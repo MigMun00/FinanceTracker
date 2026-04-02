@@ -15,8 +15,7 @@ const processQueue = (error, token = null) => {
 };
 
 export const setupInterceptors = (auth) => {
-  // Attach access token to every request
-  api.interceptors.request.use(
+  const requestInterceptor = api.interceptors.request.use(
     (config) => {
       if (auth.accessToken) {
         config.headers["Authorization"] = `Bearer ${auth.accessToken}`;
@@ -26,36 +25,27 @@ export const setupInterceptors = (auth) => {
     (error) => Promise.reject(error),
   );
 
-  // Handle 401 errors and refresh token
-  api.interceptors.response.use(
+  const responseInterceptor = api.interceptors.response.use(
     (response) => response,
     async (error) => {
       const originalRequest = error.config;
 
-      // 1. Only handle 401
       if (error.response?.status !== 401) {
         return Promise.reject(error);
       }
 
-      // 2. Skip special endpoints
-      if (
-        originalRequest.url.includes("/auth/refresh") ||
-        originalRequest.url.includes("/users/me")
-      ) {
+      if (originalRequest.url.includes("/auth/refresh")) {
         return Promise.reject(error);
       }
 
-      // 3. Don't attempt refresh if not ready
-      if (!auth.accessToken || !auth.initialized) {
+      if (!auth.accessToken) {
         return Promise.reject(error);
       }
 
-      // 4. Prevent infinite retry
       if (originalRequest._retry) {
         return Promise.reject(error);
       }
 
-      // 5. Handle concurrent requests
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({
@@ -87,4 +77,6 @@ export const setupInterceptors = (auth) => {
       }
     },
   );
+
+  return { requestInterceptor, responseInterceptor };
 };

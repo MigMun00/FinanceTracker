@@ -15,8 +15,15 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
 import AppLayout from "./layouts/AppLayout";
 import AuthLayout from "./layouts/AuthLayout";
+import { useAuth } from "./context/AuthContext";
 
 function App() {
+  const { initialized } = useAuth();
+
+  if (!initialized) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <Router>
       <Routes>
