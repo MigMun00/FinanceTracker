@@ -47,7 +47,7 @@ export default function Button({
   `,
 
     danger: `
-    bg-gradient-to-r from-(--danger) to-red-600 text-white
+    bg-(--danger) text-white
     hover:opacity-90
     hover:scale-[1.02]
     disabled:opacity-50 disabled:cursor-not-allowed
