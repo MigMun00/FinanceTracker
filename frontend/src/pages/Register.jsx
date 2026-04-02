@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import Button from "../components/Button";
 import Input from "../components/Input";
+import AuthSplit from "../components/AuthSplit";
 import { register } from "../services/auth";
 
 export default function Register() {
@@ -15,6 +17,7 @@ export default function Register() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleChange = (e) => {
     setForm({
@@ -23,7 +26,10 @@ export default function Register() {
     });
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError(null);
+
     try {
       setLoading(true);
 
@@ -32,20 +38,22 @@ export default function Register() {
       navigate("/login");
     } catch (err) {
       console.error(err);
-      alert("Error creating account. Please try again.");
+      setError("Error creating account. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-(--bg) text-(--text)">
-      <div className="w-1/2 h-1/2 bg-(--surface) border border-(--border) rounded-2xl overflow-hidden flex">
-        {/* Left */}
-        <div className="w-1/2 flex flex-col items-center justify-center px-12">
-          <h1 className="text-3xl font-semibold mb-6">Sign Up</h1>
+    <AuthSplit
+      left={
+        <>
+          <h1 className="text-3xl font-semibold mb-6 text-center">Sign Up</h1>
 
-          <div className="flex flex-col gap-4 w-3/4">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-4 w-full max-w-[320px] mx-auto"
+          >
             <Input
               name="first_name"
               type="text"
@@ -53,6 +61,7 @@ export default function Register() {
               value={form.first_name}
               onChange={handleChange}
             />
+
             <Input
               name="last_name"
               type="text"
@@ -60,6 +69,7 @@ export default function Register() {
               value={form.last_name}
               onChange={handleChange}
             />
+
             <Input
               name="email"
               type="email"
@@ -67,6 +77,7 @@ export default function Register() {
               value={form.email}
               onChange={handleChange}
             />
+
             <Input
               name="password"
               type="password"
@@ -74,23 +85,24 @@ export default function Register() {
               value={form.password}
               onChange={handleChange}
             />
-            <Button
-              className="w-1/2 self-center"
-              onClick={handleSubmit}
-              loading={loading}
-            >
+
+            {error && (
+              <p className="text-sm text-red-500 text-center">{error}</p>
+            )}
+
+            <Button loading={loading} type="submit">
               Sign Up
             </Button>
-          </div>
-        </div>
-
-        {/* Right */}
-        <div className="w-1/2 bg-(--elevated) flex flex-col items-center justify-center px-10 text-center">
-          <img className="w-1/4 mb-5" src="/logo.png" alt="Logo" />
+          </form>
+        </>
+      }
+      right={
+        <>
+          <img className="w-16 mb-6" src="/logo.png" alt="Logo" />
 
           <h2 className="text-2xl font-semibold mb-2">Get Started!</h2>
 
-          <p className="text-(--muted) mb-12">
+          <p className="text-(--muted) mb-10">
             Enter your credentials to create your account
           </p>
 
@@ -101,8 +113,8 @@ export default function Register() {
           <Link to="/login">
             <Button variant="outline">Log In</Button>
           </Link>
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }
