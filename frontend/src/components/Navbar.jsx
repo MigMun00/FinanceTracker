@@ -18,19 +18,31 @@ export default function Navbar() {
   return (
     <>
       {isAuthenticated ? (
-        <nav className="w-full px-6 py-3 border-b border-(--border) bg-(--elevated) flex items-center justify-between">
+        <nav className="w-full px-6 py-3 border-b border-(--border) bg-(--elevated)">
           <div className="max-w-300 mx-auto flex items-center justify-between w-full">
             {/* Left */}
-            <div className="flex items-center gap-6">
+            <div className="flex items-center gap-10">
               <NavLink
                 to="/dashboard"
-                className={({ isActive }) =>
-                  `${linkBase} ${isActive ? linkActive : ""}`
-                }
+                className="flex items-center gap-2 hover:opacity-80 transition"
               >
-                Dashboard
+                <img className="w-10 h-10" src="/logo.png" alt="Logo" />
+                <h1 className="text-xl font-bold">Finance Tracker</h1>
               </NavLink>
-              <div className="flex items-center gap-5">
+            </div>
+
+            {/* Right */}
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-6 mr-10">
+                <NavLink
+                  to="/dashboard"
+                  className={({ isActive }) =>
+                    `${linkBase} ${isActive ? linkActive : ""}`
+                  }
+                >
+                  Dashboard
+                </NavLink>
+
                 <NavLink
                   to="/transactions"
                   className={({ isActive }) =>
@@ -49,10 +61,6 @@ export default function Navbar() {
                   Categories
                 </NavLink>
               </div>
-            </div>
-
-            {/* Right */}
-            <div className="flex items-center gap-4">
               <span className="text-sm text-(--muted)">
                 {user?.first_name} {user?.last_name}
               </span>
