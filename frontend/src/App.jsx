@@ -10,61 +10,48 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Transactions from "./pages/Transactions";
 import Categories from "./pages/Categories";
+
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
-import Navbar from "./components/Navbar";
+import AppLayout from "./layouts/AppLayout";
 
 function App() {
   return (
     <Router>
-      <Navbar />
-      <div>
-        <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+      <Routes>
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
 
-          <Route
-            path="/login"
-            element={
-              <PublicRoute>
-                <Login />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/register"
-            element={
-              <PublicRoute>
-                <Register />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/transactions"
-            element={
-              <ProtectedRoute>
-                <Transactions />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/categories"
-            element={
-              <ProtectedRoute>
-                <Categories />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </div>
+        <Route
+          path="/login"
+          element={
+            <PublicRoute>
+              <Login />
+            </PublicRoute>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <PublicRoute>
+              <Register />
+            </PublicRoute>
+          }
+        />
+
+        <Route
+          element={
+            <ProtectedRoute>
+              <AppLayout />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/transactions" element={<Transactions />} />
+          <Route path="/categories" element={<Categories />} />
+        </Route>
+
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </Router>
   );
 }

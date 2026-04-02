@@ -18,48 +18,49 @@ export default function Navbar() {
   return (
     <>
       {isAuthenticated ? (
-        <nav
-          aria-label="Main navigation"
-          className="w-full px-6 py-3 border-b border-(--border) bg-(--surface) flex items-center justify-between"
-        >
-          {/* Left */}
-          <div className="flex items-center gap-6">
-            <NavLink
-              to="/dashboard"
-              className={({ isActive }) =>
-                `${linkBase} ${isActive ? linkActive : ""}`
-              }
-            >
-              Dashboard
-            </NavLink>
-            <div className="flex items-center gap-5">
+        <nav className="w-full px-6 py-3 border-b border-(--border) bg-(--elevated) flex items-center justify-between">
+          <div className="max-w-300 mx-auto flex items-center justify-between w-full">
+            {/* Left */}
+            <div className="flex items-center gap-6">
               <NavLink
-                to="/transactions"
+                to="/dashboard"
                 className={({ isActive }) =>
                   `${linkBase} ${isActive ? linkActive : ""}`
                 }
               >
-                Transactions
+                Dashboard
               </NavLink>
+              <div className="flex items-center gap-5">
+                <NavLink
+                  to="/transactions"
+                  className={({ isActive }) =>
+                    `${linkBase} ${isActive ? linkActive : ""}`
+                  }
+                >
+                  Transactions
+                </NavLink>
 
-              <NavLink
-                to="/categories"
-                className={({ isActive }) =>
-                  `${linkBase} ${isActive ? linkActive : ""}`
-                }
-              >
-                Categories
-              </NavLink>
+                <NavLink
+                  to="/categories"
+                  className={({ isActive }) =>
+                    `${linkBase} ${isActive ? linkActive : ""}`
+                  }
+                >
+                  Categories
+                </NavLink>
+              </div>
             </div>
-          </div>
 
-          {/* Right */}
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-(--muted)">{user?.first_name}</span>
+            {/* Right */}
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-(--muted)">
+                {user?.first_name} {user?.last_name}
+              </span>
 
-            <Button variant="ghost" onClick={handleLogout}>
-              Logout
-            </Button>
+              <Button variant="danger" onClick={handleLogout}>
+                Logout
+              </Button>
+            </div>
           </div>
         </nav>
       ) : null}
