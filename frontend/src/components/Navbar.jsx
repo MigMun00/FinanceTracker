@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import Button from "./Button";
 
@@ -11,38 +11,58 @@ export default function Navbar() {
     navigate("/login");
   };
 
+  const linkBase =
+    "text-sm font-medium text-(--muted) hover:text-(--text) transition";
+  const linkActive = "text-(--text)";
+
   return (
-    <nav className="w-full px-6 py-3 border-b border-(--border) bg-(--surface) flex items-center justify-between">
-      {/* Left */}
-      <div className="flex items-center gap-6">
-        <Link to="/dashboard" className="font-semibold">
-          FinanceTracker
-        </Link>
+    <>
+      {isAuthenticated ? (
+        <nav
+          aria-label="Main navigation"
+          className="w-full px-6 py-3 border-b border-(--border) bg-(--surface) flex items-center justify-between"
+        >
+          {/* Left */}
+          <div className="flex items-center gap-6">
+            <NavLink
+              to="/dashboard"
+              className={({ isActive }) =>
+                `${linkBase} ${isActive ? linkActive : ""}`
+              }
+            >
+              Dashboard
+            </NavLink>
+            <div className="flex items-center gap-5">
+              <NavLink
+                to="/transactions"
+                className={({ isActive }) =>
+                  `${linkBase} ${isActive ? linkActive : ""}`
+                }
+              >
+                Transactions
+              </NavLink>
 
-        {isAuthenticated && (
-          <>
-            <Link to="/transactions">Transactions</Link>
-            <Link to="/categories">Categories</Link>
-          </>
-        )}
-      </div>
+              <NavLink
+                to="/categories"
+                className={({ isActive }) =>
+                  `${linkBase} ${isActive ? linkActive : ""}`
+                }
+              >
+                Categories
+              </NavLink>
+            </div>
+          </div>
 
-      {/* Right */}
-      <div className="flex items-center gap-4">
-        {isAuthenticated ? (
-          <>
+          {/* Right */}
+          <div className="flex items-center gap-4">
             <span className="text-sm text-(--muted)">{user?.first_name}</span>
+
             <Button variant="ghost" onClick={handleLogout}>
               Logout
             </Button>
-          </>
-        ) : (
-          <>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
-          </>
-        )}
-      </div>
-    </nav>
+          </div>
+        </nav>
+      ) : null}
+    </>
   );
 }
