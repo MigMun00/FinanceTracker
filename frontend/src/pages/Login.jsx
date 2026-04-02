@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 import Button from "../components/Button";
 import Input from "../components/Input";
+import AuthSplit from "../components/AuthSplit";
 
 export default function Login() {
   const { login } = useAuth();
@@ -33,7 +33,7 @@ export default function Login() {
     try {
       await login(form);
       navigate("/dashboard");
-    } catch (err) {
+    } catch {
       setError("Invalid email or password");
     } finally {
       setLoading(false);
@@ -41,13 +41,15 @@ export default function Login() {
   };
 
   return (
-    <div className="h-screen flex items-center justify-center bg-(--bg) text-(--text)">
-      <div className="w-1/2 h-1/2 bg-(--surface) border border-(--border) rounded-2xl overflow-hidden flex">
-        {/* Left */}
-        <div className="w-1/2 flex flex-col items-center justify-center px-12">
-          <h1 className="text-3xl font-semibold mb-6">Log In</h1>
+    <AuthSplit
+      left={
+        <>
+          <h1 className="text-3xl font-semibold mb-6 text-center">Log In</h1>
 
-          <div className="flex flex-col gap-4 w-3/4">
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-col gap-4 w-full max-w-75 mx-auto"
+          >
             <Input
               name="email"
               type="email"
@@ -55,6 +57,7 @@ export default function Login() {
               value={form.email}
               onChange={handleChange}
             />
+
             <Input
               name="password"
               type="password"
@@ -64,30 +67,30 @@ export default function Login() {
             />
 
             <Button
-              disabled={true}
+              type="button"
               variant="ghost"
-              className=" w-auto self-center text-sm"
+              className="text-sm self-center"
             >
               Forgot password?
             </Button>
 
-            <Button
-              className="w-1/2 self-center"
-              onClick={handleSubmit}
-              loading={loading}
-            >
+            {error && (
+              <p className="text-sm text-red-500 text-center">{error}</p>
+            )}
+
+            <Button loading={loading} type="submit">
               Log In
             </Button>
-          </div>
-        </div>
-
-        {/* Right */}
-        <div className="w-1/2 bg-(--elevated) flex flex-col items-center justify-center px-10 text-center">
-          <img className="w-1/4 mb-5" src="/logo.png" alt="Logo" />
+          </form>
+        </>
+      }
+      right={
+        <>
+          <img className="w-16 mb-6" src="/logo.png" alt="Logo" />
 
           <h2 className="text-2xl font-semibold mb-2">Welcome back!</h2>
 
-          <p className="text-(--muted) mb-12">
+          <p className="text-(--muted) mb-10">
             Enter your credentials to access your account
           </p>
 
@@ -96,8 +99,8 @@ export default function Login() {
           <Link to="/register">
             <Button variant="outline">Sign Up</Button>
           </Link>
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    />
   );
 }
