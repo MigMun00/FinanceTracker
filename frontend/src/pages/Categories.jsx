@@ -63,7 +63,7 @@ export default function Categories() {
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <Button onClick={handleSubmit} disabled={loading}>
+        <Button variant="success" onClick={handleSubmit} disabled={loading}>
           {editingId ? "Update" : "Add"}
         </Button>
       </div>
