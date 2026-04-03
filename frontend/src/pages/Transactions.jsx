@@ -5,12 +5,7 @@ import {
   updateTransaction,
   deleteTransaction,
 } from "../services/transaction";
-import {
-  getCategories,
-  createCategory,
-  updateCategory,
-  deleteCategory,
-} from "../services/category";
+import { getCategories } from "../services/category";
 import Input from "../components/Input";
 import Button from "../components/Button";
 
@@ -18,7 +13,7 @@ export default function Transactions() {
   const [transactions, setTransactions] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [editingId, setEditingId] = useState();
+  const [editingId, setEditingId] = useState(null);
 
   const [date, setDate] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
@@ -33,17 +28,29 @@ export default function Transactions() {
 
   const loadCategories = async () => {
     const data = await getCategories();
-    setCategories(data);
+    const sorted = data.sort((a, b) => a.name.localeCompare(b.name));
+    setCategories(sorted);
   };
 
+  useEffect(() => {
+    loadTransactions();
+    loadCategories();
+
+    // default date = today
+    setDate(new Date().toISOString().split("T")[0]);
+  }, []);
+
+  // map for fast lookup
+  const categoryMap = Object.fromEntries(categories.map((c) => [c.id, c.name]));
+
   const handleSubmit = async () => {
-    if (!(date && selectedCategory && description && amount)) return;
+    if (!(date && selectedCategory && amount)) return;
 
     setLoading(true);
 
     const transactionData = {
       date,
-      category_id: selectedCategory,
+      category_id: Number(selectedCategory),
       description,
       type,
       amount: parseFloat(amount),
@@ -55,26 +62,30 @@ export default function Transactions() {
       } else {
         await createTransaction(transactionData);
       }
-    } catch {
-    } finally {
-      setDate("");
+
+      // reset ONLY on success
+      setDate(new Date().toISOString().split("T")[0]);
       setSelectedCategory("");
       setDescription("");
       setType("expense");
       setAmount("");
-      setLoading(false);
       setEditingId(null);
+
       await loadTransactions();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleEdit = (transaction) => {
-    setEditingId(transaction.id);
-    setDate(transaction.date);
-    setSelectedCategory(transaction.category_id);
-    setDescription(transaction.description);
-    setType(transaction.type);
-    setAmount(transaction.amount);
+  const handleEdit = (t) => {
+    setEditingId(t.id);
+    setDate(t.date);
+    setSelectedCategory(String(t.category_id));
+    setDescription(t.description || "");
+    setType(t.type);
+    setAmount(t.amount);
   };
 
   const handleDelete = async (id) => {
@@ -82,37 +93,40 @@ export default function Transactions() {
     setTransactions((prev) => prev.filter((t) => t.id !== id));
   };
 
-  useEffect(() => {
-    loadTransactions();
-    loadCategories();
-  }, []);
   return (
-    <div>
-      <h1 className="text-xl font-semibold mb-4">Transactions Manager</h1>
-      <div className="flex gap-2 mb-4">
+    <div className="max-w-300 mx-auto p-4">
+      <h1 className="text-3xl font-semibold mb-4">
+        {editingId ? "Edit" : "Add"} Transaction
+      </h1>
+
+      {/* Form */}
+      <div className="flex gap-2 mb-10">
         <Input
           type="date"
-          placeholder="Date"
           value={date}
           onChange={(e) => setDate(e.target.value)}
         />
+
         <select
           className="bg-(--elevated) rounded-2xl px-4 py-2"
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
         >
+          <option value="">Category</option>
           {categories.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
             </option>
           ))}
         </select>
+
         <Input
           type="text"
-          placeholder="Description"
+          placeholder="Description (optional)"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
+
         <select
           className="bg-(--elevated) px-4 py-2"
           value={type}
@@ -121,49 +135,77 @@ export default function Transactions() {
           <option value="income">Income</option>
           <option value="expense">Expense</option>
         </select>
+
         <Input
           type="number"
           placeholder="Amount"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
+          className="w-max-sm"
         />
-        <Button variant="success" onClick={handleSubmit}>
+
+        <Button variant="success" onClick={handleSubmit} disabled={loading}>
           {editingId ? "Update" : "Add"}
         </Button>
       </div>
 
-      <ul>
-        {transactions.map((t) => {
-          return (
-            <li key={t.id}>
-              <div className="w-full flex items-center gap-4 mb-3">
-                {t.date} -{" "}
-                {categories.find((c) => c.id === t.category_id)?.name ||
-                  "Uncategorized"}{" "}
-                - {t.description} - {t.type} - ${t.amount}
-                <div className="flex gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      handleEdit(t);
-                    }}
-                  >
-                    Edit
-                  </Button>
-                  <Button
-                    variant="danger"
-                    onClick={() => {
-                      handleDelete(t.id);
-                    }}
-                  >
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+      {/* List */}
+      <div className="overflow-x-auto">
+        <h2 className="text-2xl mb-5">Transaction List</h2>
+        <table className="min-w-full border-collapse border border-slate-300 bg-(--elevated)">
+          <thead className="bg-(--surface)">
+            <tr>
+              <th className="border border-slate-300 px-3 py-2 text-left">
+                Date
+              </th>
+              <th className="border border-slate-300 px-3 py-2 text-left">
+                Category
+              </th>
+              <th className="border border-slate-300 px-3 py-2 text-left">
+                Description
+              </th>
+              <th className="border border-slate-300 px-3 py-2 text-left">
+                Type
+              </th>
+              <th className="border border-slate-300 px-3 py-2 text-right">
+                Amount
+              </th>
+              <th className="border border-slate-300 px-3 py-2 text-center">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {transactions.map((t) => (
+              <tr key={t.id} className="odd:bg-transparent even:bg-transparent">
+                <td className="border border-slate-300 px-3 py-2">{t.date}</td>
+                <td className="border border-slate-300 px-3 py-2">
+                  {categoryMap[t.category_id] || "Uncategorized"}
+                </td>
+                <td className="border border-slate-300 px-3 py-2">
+                  {t.description}
+                </td>
+                <td className="border border-slate-300 px-3 py-2 capitalize">
+                  {t.type}
+                </td>
+                <td className="border border-slate-300 px-3 py-2 text-right">
+                  ${t.amount}
+                </td>
+                <td className="border border-slate-300 px-3 py-2 text-center">
+                  <div className="flex justify-center gap-2">
+                    <Button variant="outline" onClick={() => handleEdit(t)}>
+                      Edit
+                    </Button>
+                    <Button variant="danger" onClick={() => handleDelete(t.id)}>
+                      Delete
+                    </Button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
