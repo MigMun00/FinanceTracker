@@ -15,11 +15,19 @@ export default function Transactions() {
   const [loading, setLoading] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
-  const [date, setDate] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-  const [description, setDescription] = useState("");
-  const [type, setType] = useState("expense");
-  const [amount, setAmount] = useState("");
+  const initialForm = {
+    date: "",
+    category_id: "",
+    description: "",
+    type: "expense",
+    amount: "",
+  };
+
+  const [form, setForm] = useState(initialForm);
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const loadTransactions = async () => {
     const data = await getTransactions();
@@ -37,23 +45,26 @@ export default function Transactions() {
     loadCategories();
 
     // default date = today
-    setDate(new Date().toISOString().split("T")[0]);
+    setForm((prev) => ({
+      ...prev,
+      date: new Date().toISOString().split("T")[0],
+    }));
   }, []);
 
   // map for fast lookup
   const categoryMap = Object.fromEntries(categories.map((c) => [c.id, c.name]));
 
   const handleSubmit = async () => {
-    if (!(date && selectedCategory && amount)) return;
+    if (!(form.date && form.category_id && form.amount)) return;
 
     setLoading(true);
 
     const transactionData = {
-      date,
-      category_id: Number(selectedCategory),
-      description,
-      type,
-      amount: parseFloat(amount),
+      date: form.date,
+      category_id: Number(form.category_id),
+      description: form.description,
+      type: form.type,
+      amount: parseFloat(form.amount),
     };
 
     try {
@@ -64,11 +75,7 @@ export default function Transactions() {
       }
 
       // reset ONLY on success
-      setDate(new Date().toISOString().split("T")[0]);
-      setSelectedCategory("");
-      setDescription("");
-      setType("expense");
-      setAmount("");
+      setForm({ ...initialForm, date: new Date().toISOString().split("T")[0] });
       setEditingId(null);
 
       await loadTransactions();
@@ -81,11 +88,13 @@ export default function Transactions() {
 
   const handleEdit = (t) => {
     setEditingId(t.id);
-    setDate(t.date);
-    setSelectedCategory(String(t.category_id));
-    setDescription(t.description || "");
-    setType(t.type);
-    setAmount(t.amount);
+    setForm({
+      date: t.date,
+      category_id: String(t.category_id),
+      description: t.description || "",
+      type: t.type,
+      amount: t.amount,
+    });
   };
 
   const handleDelete = async (id) => {
@@ -103,14 +112,16 @@ export default function Transactions() {
       <div className="w-full flex justify-between gap-2 mb-10">
         <Input
           type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
+          name="date"
+          value={form.date}
+          onChange={handleChange}
         />
 
         <select
           className="bg-(--elevated) rounded-lg outline-none transition-all px-4 py-2"
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
+          name="category_id"
+          value={form.category_id}
+          onChange={handleChange}
         >
           <option value="">Category</option>
           {categories.map((c) => (
@@ -122,15 +133,17 @@ export default function Transactions() {
 
         <Input
           type="text"
+          name="description"
           placeholder="Description (optional)"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          value={form.description}
+          onChange={handleChange}
         />
 
         <select
           className="bg-(--elevated) rounded-lg outline-none transition-all px-4 py-2"
-          value={type}
-          onChange={(e) => setType(e.target.value)}
+          name="type"
+          value={form.type}
+          onChange={handleChange}
         >
           <option value="income">Income</option>
           <option value="expense">Expense</option>
@@ -138,9 +151,10 @@ export default function Transactions() {
 
         <Input
           type="number"
+          name="amount"
           placeholder="Amount"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
+          value={form.amount}
+          onChange={handleChange}
           className="w-max-sm"
         />
 
