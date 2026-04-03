@@ -100,7 +100,7 @@ export default function Transactions() {
       </h1>
 
       {/* Form */}
-      <div className="flex gap-2 mb-10">
+      <div className="w-full flex justify-between gap-2 mb-10">
         <Input
           type="date"
           value={date}
@@ -108,7 +108,7 @@ export default function Transactions() {
         />
 
         <select
-          className="bg-(--elevated) rounded-2xl px-4 py-2"
+          className="bg-(--elevated) rounded-lg outline-none transition-all px-4 py-2"
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
         >
@@ -128,7 +128,7 @@ export default function Transactions() {
         />
 
         <select
-          className="bg-(--elevated) px-4 py-2"
+          className="bg-(--elevated) rounded-lg outline-none transition-all px-4 py-2"
           value={type}
           onChange={(e) => setType(e.target.value)}
         >
@@ -151,7 +151,7 @@ export default function Transactions() {
 
       {/* List */}
       <div className="overflow-x-auto">
-        <h2 className="text-2xl mb-5">Transaction List</h2>
+        <h2 className="text-2xl mb-5">My Transactions</h2>
         <table className="min-w-full border-collapse border border-slate-300 bg-(--elevated)">
           <thead className="bg-(--surface)">
             <tr>

@@ -53,10 +53,12 @@ export default function Categories() {
 
   return (
     <div className="max-w-xl mx-auto p-4">
-      <h1 className="text-xl font-semibold mb-4">Categories Manager</h1>
+      <h1 className="text-3xl font-semibold mb-4">
+        {editingId ? "Edit" : "Add"} Category
+      </h1>
 
       {/* Form */}
-      <div className="flex gap-2 mb-4">
+      <div className="flex gap-2 mb-10">
         <input
           className="flex-1 border px-3 py-2 rounded"
           placeholder="Category name"
@@ -68,6 +70,7 @@ export default function Categories() {
         </Button>
       </div>
 
+      <h2 className="text-2xl mb-5">My Categories</h2>
       {/* List */}
       <ul className="space-y-2">
         {categories.map((category) => (
