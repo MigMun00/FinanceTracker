@@ -8,47 +8,39 @@ import {
 import { getCategories } from "../services/category";
 import Input from "../components/Input";
 import Button from "../components/Button";
+import RowActions from "../components/RowActions";
+import { useListCRUD } from "../hooks/useListCRUD";
+
+const emptyForm = () => ({
+  date: new Date().toISOString().split("T")[0],
+  category_id: "",
+  description: "",
+  type: "expense",
+  amount: "",
+});
 
 export default function Transactions() {
-  const [transactions, setTransactions] = useState([]);
+  const {
+    items: transactions,
+    editingId,
+    setEditingId,
+    loading,
+    setLoading,
+    load: loadTransactions,
+    handleDelete,
+  } = useListCRUD(getTransactions, deleteTransaction);
+
   const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-
-  const initialForm = {
-    date: "",
-    category_id: "",
-    description: "",
-    type: "expense",
-    amount: "",
-  };
-
-  const [form, setForm] = useState(initialForm);
+  const [form, setForm] = useState(emptyForm);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const loadTransactions = async () => {
-    const data = await getTransactions();
-    setTransactions(data);
-  };
-
-  const loadCategories = async () => {
-    const data = await getCategories();
-    const sorted = data.sort((a, b) => a.name.localeCompare(b.name));
-    setCategories(sorted);
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   useEffect(() => {
-    loadTransactions();
-    loadCategories();
-
-    // default date = today
-    setForm((prev) => ({
-      ...prev,
-      date: new Date().toISOString().split("T")[0],
-    }));
+    getCategories().then((data) =>
+      setCategories(data.sort((a, b) => a.name.localeCompare(b.name))),
+    );
   }, []);
 
   // map for fast lookup
@@ -58,8 +50,7 @@ export default function Transactions() {
     if (!(form.date && form.category_id && form.amount)) return;
 
     setLoading(true);
-
-    const transactionData = {
+    const payload = {
       date: form.date,
       category_id: Number(form.category_id),
       description: form.description,
@@ -69,15 +60,12 @@ export default function Transactions() {
 
     try {
       if (editingId) {
-        await updateTransaction(editingId, transactionData);
+        await updateTransaction(editingId, payload);
       } else {
-        await createTransaction(transactionData);
+        await createTransaction(payload);
       }
-
-      // reset ONLY on success
-      setForm({ ...initialForm, date: new Date().toISOString().split("T")[0] });
+      setForm(emptyForm);
       setEditingId(null);
-
       await loadTransactions();
     } catch (err) {
       console.error(err);
@@ -95,11 +83,6 @@ export default function Transactions() {
       type: t.type,
       amount: t.amount,
     });
-  };
-
-  const handleDelete = async (id) => {
-    await deleteTransaction(id);
-    setTransactions((prev) => prev.filter((t) => t.id !== id));
   };
 
   return (
@@ -169,19 +152,19 @@ export default function Transactions() {
         <table className="min-w-full border-collapse border border-slate-300 bg-(--elevated)">
           <thead className="bg-(--surface)">
             <tr>
-              <th className="border border-slate-300 px-3 py-2 text-left">
+              <th className="border border-slate-300 px-3 py-2 text-center">
                 Date
               </th>
-              <th className="border border-slate-300 px-3 py-2 text-left">
+              <th className="border border-slate-300 px-3 py-2 text-center">
                 Category
               </th>
-              <th className="border border-slate-300 px-3 py-2 text-left">
+              <th className="border border-slate-300 px-3 py-2 text-center">
                 Description
               </th>
-              <th className="border border-slate-300 px-3 py-2 text-left">
+              <th className="border border-slate-300 px-3 py-2 text-center">
                 Type
               </th>
-              <th className="border border-slate-300 px-3 py-2 text-right">
+              <th className="border border-slate-300 px-3 py-2 text-center">
                 Amount
               </th>
               <th className="border border-slate-300 px-3 py-2 text-center">
@@ -202,18 +185,14 @@ export default function Transactions() {
                 <td className="border border-slate-300 px-3 py-2 capitalize">
                   {t.type}
                 </td>
-                <td className="border border-slate-300 px-3 py-2 text-right">
+                <td className="border border-slate-300 px-3 py-2 text-left">
                   ${t.amount}
                 </td>
-                <td className="border border-slate-300 px-3 py-2 text-center">
-                  <div className="flex justify-center gap-2">
-                    <Button variant="outline" onClick={() => handleEdit(t)}>
-                      Edit
-                    </Button>
-                    <Button variant="danger" onClick={() => handleDelete(t.id)}>
-                      Delete
-                    </Button>
-                  </div>
+                <td className="border border-slate-300 px-3 py-2 flex justify-center">
+                  <RowActions
+                    onEdit={() => handleEdit(t)}
+                    onDelete={() => handleDelete(t.id)}
+                  />
                 </td>
               </tr>
             ))}

@@ -1,4 +1,10 @@
-export default function Input({ label, error, className = "", ...props }) {
+export default function Input({
+  label,
+  error,
+  className = "",
+  wrapperClassName = "",
+  ...props
+}) {
   const base = "w-full px-4 py-2 rounded-lg outline-none transition-all";
 
   const styles = `
@@ -18,7 +24,7 @@ export default function Input({ label, error, className = "", ...props }) {
     : "";
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className={`flex flex-col gap-1 ${wrapperClassName}`}>
       {label && <label className="text-sm text-(--muted)">{label}</label>}
 
       <input

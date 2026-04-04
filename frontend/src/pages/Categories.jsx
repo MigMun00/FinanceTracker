@@ -1,5 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Button from "../components/Button";
+import Input from "../components/Input";
+import RowActions from "../components/RowActions";
+import { useListCRUD } from "../hooks/useListCRUD";
 import {
   getCategories,
   createCategory,
@@ -8,23 +11,20 @@ import {
 } from "../services/category";
 
 export default function Categories() {
-  const [categories, setCategories] = useState([]);
+  const {
+    items: categories,
+    editingId,
+    setEditingId,
+    loading,
+    setLoading,
+    load,
+    handleDelete,
+  } = useListCRUD(getCategories, deleteCategory);
+
   const [name, setName] = useState("");
-  const [editingId, setEditingId] = useState(null);
-  const [loading, setLoading] = useState(false);
-
-  const loadCategories = async () => {
-    const data = await getCategories();
-    setCategories(data);
-  };
-
-  useEffect(() => {
-    loadCategories();
-  }, []);
 
   const handleSubmit = async () => {
     if (!name.trim()) return;
-
     setLoading(true);
     try {
       if (editingId) {
@@ -32,18 +32,12 @@ export default function Categories() {
       } else {
         await createCategory({ name });
       }
-
       setName("");
       setEditingId(null);
-      await loadCategories();
+      await load();
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDelete = async (id) => {
-    await deleteCategory(id);
-    setCategories((prev) => prev.filter((c) => c.id !== id));
   };
 
   const handleEdit = (category) => {
@@ -59,8 +53,8 @@ export default function Categories() {
 
       {/* Form */}
       <div className="flex gap-2 mb-10">
-        <input
-          className="flex-1 border px-3 py-2 rounded"
+        <Input
+          wrapperClassName="flex-1"
           placeholder="Category name"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -79,18 +73,10 @@ export default function Categories() {
             className="flex justify-between items-center border px-3 py-2 rounded"
           >
             <span>{category.name}</span>
-
-            <div className="flex gap-2">
-              <Button onClick={() => handleEdit(category)} variant="outline">
-                Edit
-              </Button>
-              <Button
-                onClick={() => handleDelete(category.id)}
-                variant="danger"
-              >
-                Delete
-              </Button>
-            </div>
+            <RowActions
+              onEdit={() => handleEdit(category)}
+              onDelete={() => handleDelete(category.id)}
+            />
           </li>
         ))}
       </ul>
