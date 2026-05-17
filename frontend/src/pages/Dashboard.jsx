@@ -134,12 +134,12 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="max-w-300 mx-auto px-6 py-8 space-y-6">
+    <div className="max-w-300 mx-auto space-y-4 sm:space-y-6">
       {/* Top row */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {/* Top-left: Expenses by category pie */}
         <div
-          className="rounded-xl p-5"
+          className="rounded-xl p-4 sm:p-5"
           style={{
             background: "var(--surface)",
             border: "1px solid var(--border)",
@@ -159,38 +159,40 @@ export default function Dashboard() {
               No expense data yet
             </p>
           ) : (
-            <ResponsiveContainer width="100%" height={280}>
-              <PieChart>
-                <Pie
-                  data={expensesByCategory}
-                  dataKey="total"
-                  nameKey="category"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={100}
-                  paddingAngle={3}
-                >
-                  {expensesByCategory.map((_, i) => (
-                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomPieTooltip />} />
-                <Legend
-                  formatter={(value) => (
-                    <span style={{ color: "var(--muted)", fontSize: 12 }}>
-                      {value}
-                    </span>
-                  )}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+            <div className="h-[240px] sm:h-[280px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={expensesByCategory}
+                    dataKey="total"
+                    nameKey="category"
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={45}
+                    outerRadius={90}
+                    paddingAngle={3}
+                  >
+                    {expensesByCategory.map((_, i) => (
+                      <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<CustomPieTooltip />} />
+                  <Legend
+                    formatter={(value) => (
+                      <span style={{ color: "var(--muted)", fontSize: 12 }}>
+                        {value}
+                      </span>
+                    )}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           )}
         </div>
 
         {/* Top-right: Cashflow by month */}
         <div
-          className="rounded-xl p-5"
+          className="rounded-xl p-4 sm:p-5"
           style={{
             background: "var(--surface)",
             border: "1px solid var(--border)",
@@ -210,78 +212,80 @@ export default function Dashboard() {
               No cashflow data yet
             </p>
           ) : (
-            <ResponsiveContainer width="100%" height={280}>
-              <ComposedChart
-                data={cashflow}
-                margin={{ top: 5, right: 30, bottom: 5, left: 10 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
-                <XAxis
-                  dataKey="label"
-                  tick={{ fill: "var(--muted)", fontSize: 11 }}
-                  axisLine={{ stroke: "var(--border)" }}
-                  tickLine={false}
-                />
-                <YAxis
-                  yAxisId="bars"
-                  tick={{ fill: "var(--muted)", fontSize: 11 }}
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
-                />
-                <YAxis
-                  yAxisId="line"
-                  orientation="right"
-                  tick={{ fill: "#60a5fa", fontSize: 11 }}
-                  axisLine={false}
-                  tickLine={false}
-                  tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
-                />
-                <Tooltip content={<CustomBarTooltip />} />
-                <Legend
-                  formatter={(value) => (
-                    <span style={{ color: "var(--muted)", fontSize: 12 }}>
-                      {value}
-                    </span>
-                  )}
-                />
-                <Bar
-                  yAxisId="bars"
-                  dataKey="income"
-                  name="Income"
-                  fill="#22c55e"
-                  radius={[3, 3, 0, 0]}
-                  maxBarSize={28}
-                />
-                <Bar
-                  yAxisId="bars"
-                  dataKey="expense"
-                  name="Expense"
-                  fill="#ef4444"
-                  radius={[3, 3, 0, 0]}
-                  maxBarSize={28}
-                />
-                <Line
-                  yAxisId="line"
-                  type="monotone"
-                  dataKey="cashflow"
-                  name="Cashflow"
-                  stroke="#60a5fa"
-                  strokeWidth={2}
-                  dot={{ fill: "#60a5fa", r: 3 }}
-                  activeDot={{ r: 5 }}
-                />
-              </ComposedChart>
-            </ResponsiveContainer>
+            <div className="h-[240px] sm:h-[280px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <ComposedChart
+                  data={cashflow}
+                  margin={{ top: 5, right: 12, bottom: 5, left: 0 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis
+                    dataKey="label"
+                    tick={{ fill: "var(--muted)", fontSize: 11 }}
+                    axisLine={{ stroke: "var(--border)" }}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    yAxisId="bars"
+                    tick={{ fill: "var(--muted)", fontSize: 11 }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                  />
+                  <YAxis
+                    yAxisId="line"
+                    orientation="right"
+                    tick={{ fill: "#60a5fa", fontSize: 11 }}
+                    axisLine={false}
+                    tickLine={false}
+                    tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+                  />
+                  <Tooltip content={<CustomBarTooltip />} />
+                  <Legend
+                    formatter={(value) => (
+                      <span style={{ color: "var(--muted)", fontSize: 12 }}>
+                        {value}
+                      </span>
+                    )}
+                  />
+                  <Bar
+                    yAxisId="bars"
+                    dataKey="income"
+                    name="Income"
+                    fill="#22c55e"
+                    radius={[3, 3, 0, 0]}
+                    maxBarSize={22}
+                  />
+                  <Bar
+                    yAxisId="bars"
+                    dataKey="expense"
+                    name="Expense"
+                    fill="#ef4444"
+                    radius={[3, 3, 0, 0]}
+                    maxBarSize={22}
+                  />
+                  <Line
+                    yAxisId="line"
+                    type="monotone"
+                    dataKey="cashflow"
+                    name="Cashflow"
+                    stroke="#60a5fa"
+                    strokeWidth={2}
+                    dot={{ fill: "#60a5fa", r: 3 }}
+                    activeDot={{ r: 5 }}
+                  />
+                </ComposedChart>
+              </ResponsiveContainer>
+            </div>
           )}
         </div>
       </div>
 
       {/* Bottom row */}
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {/* Bottom-left: Monthly totals */}
         <div
-          className="rounded-xl p-5 flex flex-col gap-4"
+          className="rounded-xl p-4 sm:p-5 flex flex-col gap-4"
           style={{
             background: "var(--surface)",
             border: "1px solid var(--border)",
@@ -293,7 +297,7 @@ export default function Dashboard() {
           >
             This Month's Summary
           </h2>
-          <div className="grid grid-cols-2 gap-4 flex-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
             <div
               className="rounded-lg p-5 flex flex-col gap-2 justify-center"
               style={{
@@ -307,7 +311,7 @@ export default function Dashboard() {
               >
                 Income
               </p>
-              <p className="text-2xl font-bold" style={{ color: "#22c55e" }}>
+              <p className="text-xl sm:text-2xl font-bold" style={{ color: "#22c55e" }}>
                 {monthlyReport ? formatCurrency(monthlyReport.income) : "—"}
               </p>
             </div>
@@ -324,7 +328,7 @@ export default function Dashboard() {
               >
                 Expenses
               </p>
-              <p className="text-2xl font-bold" style={{ color: "#ef4444" }}>
+              <p className="text-xl sm:text-2xl font-bold" style={{ color: "#ef4444" }}>
                 {monthlyReport ? formatCurrency(monthlyReport.expense) : "—"}
               </p>
             </div>
@@ -333,7 +337,7 @@ export default function Dashboard() {
 
         {/* Bottom-right: Last 5 transactions */}
         <div
-          className="rounded-xl p-5"
+          className="rounded-xl p-4 sm:p-5"
           style={{
             background: "var(--surface)",
             border: "1px solid var(--border)",
@@ -353,55 +357,57 @@ export default function Dashboard() {
               No transactions yet
             </p>
           ) : (
-            <table className="w-full text-sm">
-              <thead>
-                <tr style={{ borderBottom: "1px solid var(--border)" }}>
-                  {["Date", "Category", "Description", "Amount"].map((h) => (
-                    <th
-                      key={h}
-                      className="text-left pb-2 font-medium"
-                      style={{ color: "var(--muted)" }}
-                    >
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {recentTransactions.map((tx) => (
-                  <tr
-                    key={tx.id}
-                    style={{ borderBottom: "1px solid var(--border)" }}
-                  >
-                    <td
-                      className="py-2 pr-3 whitespace-nowrap"
-                      style={{ color: "var(--muted)" }}
-                    >
-                      {tx.date}
-                    </td>
-                    <td className="py-2 pr-3" style={{ color: "var(--text)" }}>
-                      {categories[tx.category_id] || "—"}
-                    </td>
-                    <td
-                      className="py-2 pr-3 truncate max-w-32"
-                      style={{ color: "var(--muted)" }}
-                      title={tx.description}
-                    >
-                      {tx.description || "—"}
-                    </td>
-                    <td
-                      className="py-2 font-medium whitespace-nowrap text-right"
-                      style={{
-                        color: tx.type === "income" ? "#22c55e" : "#ef4444",
-                      }}
-                    >
-                      {tx.type === "income" ? "+" : "-"}
-                      {formatCurrency(tx.amount)}
-                    </td>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[560px] text-sm">
+                <thead>
+                  <tr style={{ borderBottom: "1px solid var(--border)" }}>
+                    {["Date", "Category", "Description", "Amount"].map((h) => (
+                      <th
+                        key={h}
+                        className="text-left pb-2 font-medium"
+                        style={{ color: "var(--muted)" }}
+                      >
+                        {h}
+                      </th>
+                    ))}
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {recentTransactions.map((tx) => (
+                    <tr
+                      key={tx.id}
+                      style={{ borderBottom: "1px solid var(--border)" }}
+                    >
+                      <td
+                        className="py-2 pr-3 whitespace-nowrap"
+                        style={{ color: "var(--muted)" }}
+                      >
+                        {tx.date}
+                      </td>
+                      <td className="py-2 pr-3" style={{ color: "var(--text)" }}>
+                        {categories[tx.category_id] || "—"}
+                      </td>
+                      <td
+                        className="py-2 pr-3 truncate max-w-32"
+                        style={{ color: "var(--muted)" }}
+                        title={tx.description}
+                      >
+                        {tx.description || "—"}
+                      </td>
+                      <td
+                        className="py-2 font-medium whitespace-nowrap text-right"
+                        style={{
+                          color: tx.type === "income" ? "#22c55e" : "#ef4444",
+                        }}
+                      >
+                        {tx.type === "income" ? "+" : "-"}
+                        {formatCurrency(tx.amount)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>

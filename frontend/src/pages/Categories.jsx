@@ -46,31 +46,31 @@ export default function Categories() {
   };
 
   return (
-    <div className="max-w-xl mx-auto p-4">
-      <h1 className="text-3xl font-semibold mb-4">
+    <div className="max-w-xl mx-auto p-3 sm:p-4">
+      <h1 className="text-2xl sm:text-3xl font-semibold mb-4">
         {editingId ? "Edit" : "Add"} Category
       </h1>
 
       {/* Form */}
-      <div className="flex gap-2 mb-10">
+      <div className="flex flex-col sm:flex-row gap-2 mb-8 sm:mb-10">
         <Input
           wrapperClassName="flex-1"
           placeholder="Category name"
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <Button variant="success" onClick={handleSubmit} disabled={loading}>
+        <Button className="w-full sm:w-auto" variant="success" onClick={handleSubmit} disabled={loading}>
           {editingId ? "Update" : "Add"}
         </Button>
       </div>
 
-      <h2 className="text-2xl mb-5">My Categories</h2>
+      <h2 className="text-xl sm:text-2xl mb-5">My Categories</h2>
       {/* List */}
       <ul className="space-y-2">
         {categories.map((category) => (
           <li
             key={category.id}
-            className="flex justify-between items-center border px-3 py-2 rounded"
+            className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border px-3 py-2 rounded"
           >
             <span>{category.name}</span>
             <RowActions

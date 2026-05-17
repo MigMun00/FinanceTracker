@@ -86,22 +86,23 @@ export default function Transactions() {
   };
 
   return (
-    <div className="max-w-300 mx-auto p-4">
-      <h1 className="text-3xl font-semibold mb-4">
+    <div className="max-w-300 mx-auto p-2 sm:p-4">
+      <h1 className="text-2xl sm:text-3xl font-semibold mb-4">
         {editingId ? "Edit" : "Add"} Transaction
       </h1>
 
       {/* Form */}
-      <div className="w-full flex justify-between gap-2 mb-10">
+      <div className="w-full grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-6 gap-3 mb-8">
         <Input
           type="date"
           name="date"
           value={form.date}
           onChange={handleChange}
+          wrapperClassName="w-full"
         />
 
         <select
-          className="bg-(--elevated) rounded-lg outline-none transition-all px-4 py-2"
+          className="w-full bg-(--elevated) rounded-lg outline-none transition-all px-4 py-2 border border-(--border)"
           name="category_id"
           value={form.category_id}
           onChange={handleChange}
@@ -120,10 +121,11 @@ export default function Transactions() {
           placeholder="Description (optional)"
           value={form.description}
           onChange={handleChange}
+          wrapperClassName="w-full"
         />
 
         <select
-          className="bg-(--elevated) rounded-lg outline-none transition-all px-4 py-2"
+          className="w-full bg-(--elevated) rounded-lg outline-none transition-all px-4 py-2 border border-(--border)"
           name="type"
           value={form.type}
           onChange={handleChange}
@@ -138,18 +140,18 @@ export default function Transactions() {
           placeholder="Amount"
           value={form.amount}
           onChange={handleChange}
-          className="w-max-sm"
+          wrapperClassName="w-full"
         />
 
-        <Button variant="success" onClick={handleSubmit} disabled={loading}>
+        <Button className="w-full" variant="success" onClick={handleSubmit} disabled={loading}>
           {editingId ? "Update" : "Add"}
         </Button>
       </div>
 
       {/* List */}
       <div className="overflow-x-auto">
-        <h2 className="text-2xl mb-5">My Transactions</h2>
-        <table className="min-w-full border-collapse border border-slate-300 bg-(--elevated)">
+        <h2 className="text-xl sm:text-2xl mb-5">My Transactions</h2>
+        <table className="min-w-[760px] w-full border-collapse border border-slate-300 bg-(--elevated)">
           <thead className="bg-(--surface)">
             <tr>
               <th className="border border-slate-300 px-3 py-2 text-center">
@@ -188,7 +190,7 @@ export default function Transactions() {
                 <td className="border border-slate-300 px-3 py-2 text-left">
                   ${t.amount}
                 </td>
-                <td className="border border-slate-300 px-3 py-2 flex justify-center">
+                <td className="border border-slate-300 px-3 py-2 text-center">
                   <RowActions
                     onEdit={() => handleEdit(t)}
                     onDelete={() => handleDelete(t.id)}

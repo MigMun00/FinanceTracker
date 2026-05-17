@@ -44,11 +44,11 @@ export default function Login() {
     <AuthSplit
       left={
         <>
-          <h1 className="text-3xl font-semibold mb-6 text-center">Log In</h1>
+          <h1 className="text-2xl sm:text-3xl font-semibold mb-6 text-center">Log In</h1>
 
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-4 w-full max-w-75 mx-auto"
+            className="flex flex-col gap-4 w-full max-w-full sm:max-w-75 mx-auto"
           >
             <Input
               name="email"
@@ -69,7 +69,7 @@ export default function Login() {
             <Button
               type="button"
               variant="ghost"
-              className="text-sm self-center"
+              className="text-sm self-start sm:self-center"
             >
               Forgot password?
             </Button>
@@ -86,18 +86,18 @@ export default function Login() {
       }
       right={
         <>
-          <img className="w-16 mb-6" src="/logo.png" alt="Logo" />
+          <img className="w-14 sm:w-16 mb-6" src="/logo.png" alt="Logo" />
 
-          <h2 className="text-2xl font-semibold mb-2">Welcome back!</h2>
+          <h2 className="text-xl sm:text-2xl font-semibold mb-2">Welcome back!</h2>
 
-          <p className="text-(--muted) mb-10">
+          <p className="text-(--muted) mb-6 sm:mb-10">
             Enter your credentials to access your account
           </p>
 
           <p className="text-sm text-(--muted) mb-2">Don't have an account?</p>
 
           <Link to="/register">
-            <Button variant="outline">Sign Up</Button>
+            <Button className="w-full sm:w-auto" variant="outline">Sign Up</Button>
           </Link>
         </>
       }

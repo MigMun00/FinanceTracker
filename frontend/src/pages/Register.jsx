@@ -48,11 +48,11 @@ export default function Register() {
     <AuthSplit
       left={
         <>
-          <h1 className="text-3xl font-semibold mb-6 text-center">Sign Up</h1>
+          <h1 className="text-2xl sm:text-3xl font-semibold mb-6 text-center">Sign Up</h1>
 
           <form
             onSubmit={handleSubmit}
-            className="flex flex-col gap-4 w-full max-w-[320px] mx-auto"
+            className="flex flex-col gap-4 w-full max-w-full sm:max-w-[320px] mx-auto"
           >
             <Input
               name="first_name"
@@ -98,11 +98,11 @@ export default function Register() {
       }
       right={
         <>
-          <img className="w-16 mb-6" src="/logo.png" alt="Logo" />
+          <img className="w-14 sm:w-16 mb-6" src="/logo.png" alt="Logo" />
 
-          <h2 className="text-2xl font-semibold mb-2">Get Started!</h2>
+          <h2 className="text-xl sm:text-2xl font-semibold mb-2">Get Started!</h2>
 
-          <p className="text-(--muted) mb-10">
+          <p className="text-(--muted) mb-6 sm:mb-10">
             Enter your credentials to create your account
           </p>
 
@@ -111,7 +111,7 @@ export default function Register() {
           </p>
 
           <Link to="/login">
-            <Button variant="outline">Log In</Button>
+            <Button className="w-full sm:w-auto" variant="outline">Log In</Button>
           </Link>
         </>
       }
